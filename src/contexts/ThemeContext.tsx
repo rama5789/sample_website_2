@@ -12,11 +12,11 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(undefine
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-      try {
-        return (localStorage.getItem('theme') as Theme) || 'system';
-      } catch (e) {
-        return 'system';
-      }
+    try {
+      return (localStorage.getItem('theme') as Theme) || 'system';
+    } catch (e) {
+      return 'system';
+    }
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } else {
         currentTheme = t;
       }
-      
+
       document.documentElement.classList.toggle('dark', currentTheme === 'dark');
       setResolvedTheme(currentTheme);
     };
@@ -38,15 +38,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => applyTheme(theme);
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     try {
-        localStorage.setItem('theme', newTheme);
-    } catch(e) { /* Fails silently if localStorage is not available */ }
+      localStorage.setItem('theme', newTheme);
+    } catch (e) {
+      /* Fails silently if localStorage is not available */
+    }
     setThemeState(newTheme);
   };
 
