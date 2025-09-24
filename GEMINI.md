@@ -20,8 +20,8 @@ This document provides a concise overview of the current state of the BintyByte 
 - **Routing**: `react-router-dom` (using `HashRouter`).
 - **Animations**: `framer-motion`.
 - **Architecture**:
-    - Modular, folder-based structure (`src/components`, `src/pages`, `src/hooks`, etc.).
-    - Centralized theme management via React Context (`ThemeContext`).
+    - **Modular Structure**: All source code resides within the `src` directory, organized by feature (`components`, `pages`, `hooks`, `contexts`, etc.). The main entry point is `index.tsx`, which renders `src/App.tsx`. The redundant `App.tsx` file in the root directory has been removed.
+    - **Theme Management**: Centralized theme logic is handled via React Context (`src/contexts/ThemeContext.tsx`).
 
 ## 4. Key Features Implemented
 ### 4.1. Responsive Navigation
