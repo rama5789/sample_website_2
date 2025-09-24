@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
             // Separate vendor chunks for better caching
             react: ['react', 'react-dom'],
             router: ['react-router-dom'],
-            framer: ['framer-motion'],
+            motion: ['motion'],
           },
         },
       },

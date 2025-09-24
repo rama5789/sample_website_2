@@ -17,7 +17,9 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(npm uninstall:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm ls:*)",
+      "Bash(make:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import type { NavLinkItem, MenuCategory } from '../../types';
 import { ChevronRightIcon, XIcon, ArrowLeftIcon } from '../icons';

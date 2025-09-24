@@ -14,7 +14,7 @@ import { NavLink } from './NavLink';
 import { Button } from './Button';
 import { useMenuState } from '../../hooks/useMenuState';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 const HeaderComponent: React.FC = () => {
   const {

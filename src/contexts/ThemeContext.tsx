@@ -14,7 +14,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
       return (localStorage.getItem('theme') as Theme) || 'system';
-    } catch (e) {
+    } catch {
       return 'system';
     }
   });
@@ -46,7 +46,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setTheme = (newTheme: Theme) => {
     try {
       localStorage.setItem('theme', newTheme);
-    } catch (e) {
+    } catch {
       /* Fails silently if localStorage is not available */
     }
     setThemeState(newTheme);
