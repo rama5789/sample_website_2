@@ -1,75 +1,65 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../../constants';
-import { LogoIcon, MenuIcon, XIcon, ChevronRightIcon, ArrowLeftIcon } from '../icons';
+import { LogoIcon, MenuIcon, XIcon, ChevronRightIcon } from '../icons';
 import { ThemeToggle } from './ThemeToggle';
 import { MegaMenu } from './MegaMenu';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { NavLinkItem, MenuCategory, Product } from '../../types';
-
-interface MobileMenuLevel {
-    title: string;
-    items: (NavLinkItem | MenuCategory | Product)[];
-    type: 'links' | 'categories' | 'products';
-}
+import type { NavLinkItem } from '../../types';
 
 export const Header: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-    const [mobileNavStack, setMobileNavStack] = useState<MobileMenuLevel[]>([{ title: 'Menu', items: NAV_LINKS, type: 'links' }]);
     
     const location = useLocation();
-    const menuRef = useRef<HTMLDivElement>(null);
+    const megaMenuButtonRef = useRef<HTMLButtonElement>(null);
+    const megaMenuRef = useRef<HTMLDivElement>(null);
 
     // Close menus on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
         setIsMegaMenuOpen(false);
-        setMobileNavStack([{ title: 'Menu', items: NAV_LINKS, type: 'links' }]);
     }, [location]);
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
-        if (isMobileMenuOpen) {
+        if (isMobileMenuOpen || isMegaMenuOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
         }
         return () => { document.body.style.overflow = ''; };
-    }, [isMobileMenuOpen]);
+    }, [isMobileMenuOpen, isMegaMenuOpen]);
 
     // Handle clicks outside of mega menu to close it
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+            if (
+                isMegaMenuOpen &&
+                megaMenuRef.current && 
+                !megaMenuRef.current.contains(event.target as Node) &&
+                megaMenuButtonRef.current &&
+                !megaMenuButtonRef.current.contains(event.target as Node)
+            ) {
                 setIsMegaMenuOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [isMegaMenuOpen]);
 
     const productsLink = NAV_LINKS.find(link => link.name === 'Products');
     const navLinkClass = "relative px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
 
-    const handleMobileMenuClick = (item: NavLinkItem) => {
-        if (item.megaMenuContent) {
-            setMobileNavStack(stack => [...stack, { title: item.name, items: item.megaMenuContent!, type: 'categories' }]);
-        }
+    const mobileMenuVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
     };
     
-    const handleMobileCategoryClick = (category: MenuCategory) => {
-        const products: Product[] = category.items.map(p => ({ name: p.name, path: p.path, description: p.description }));
-        setMobileNavStack(stack => [...stack, { title: category.name, items: products, type: 'products' }]);
-    };
-
-
-    const mobileMenuVariants = {
+    const mobilePanelVariants = {
         hidden: { x: '100%' },
         visible: { x: 0 },
     };
-
-    const currentMenu = mobileNavStack[mobileNavStack.length - 1];
 
     return (
         <>
@@ -81,12 +71,13 @@ export const Header: React.FC = () => {
                             <span>BintyByte</span>
                         </Link>
                         
-                        <div ref={menuRef} className="hidden lg:flex items-center space-x-1">
+                        <div className="hidden lg:flex items-center space-x-1">
                             {NAV_LINKS.map(link => {
                                 if (link.megaMenuContent) {
                                     return (
                                         <div key={link.name} className="relative">
                                             <button 
+                                                ref={megaMenuButtonRef}
                                                 onClick={() => setIsMegaMenuOpen(prev => !prev)}
                                                 className={`${navLinkClass} ${isMegaMenuOpen ? 'bg-gray-100 dark:bg-gray-700/50' : ''}`}
                                             >
@@ -124,8 +115,10 @@ export const Header: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                
-                {/* Desktop Mega Menu */}
+            </header>
+
+            {/* Unified Mega Menu for Desktop and Mobile */}
+             <div ref={megaMenuRef}>
                 <AnimatePresence>
                     {isMegaMenuOpen && (
                         <MegaMenu
@@ -134,9 +127,9 @@ export const Header: React.FC = () => {
                         />
                     )}
                 </AnimatePresence>
-            </header>
+            </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile Slide-out Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
@@ -144,80 +137,58 @@ export const Header: React.FC = () => {
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
-                        variants={{}}
                     >
-                        <motion.div className="absolute inset-0 bg-black/40" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} onClick={() => setIsMobileMenuOpen(false)} />
+                        <motion.div 
+                            className="absolute inset-0 bg-black/40" 
+                            variants={mobileMenuVariants} 
+                            onClick={() => setIsMobileMenuOpen(false)} 
+                        />
                         
                         <motion.div
-                            className="fixed top-0 right-0 bottom-0 flex z-[70]"
-                            variants={mobileMenuVariants}
+                            className="fixed top-0 right-0 bottom-0 w-screen max-w-md bg-white dark:bg-gray-900 shadow-xl flex flex-col"
+                            variants={mobilePanelVariants}
                             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         >
-                            <div className="relative w-screen max-w-md bg-white dark:bg-gray-900 shadow-xl flex flex-col overflow-hidden">
-                                <div className="flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
-                                    {mobileNavStack.length > 1 && (
-                                        <button onClick={() => setMobileNavStack(s => s.slice(0, -1))} className="p-2 -ml-2 text-gray-600 dark:text-gray-300">
-                                            <ArrowLeftIcon className="h-6 w-6" />
-                                        </button>
-                                    )}
-                                    <h2 className="font-bold text-lg text-gray-900 dark:text-white flex-grow text-center">{currentMenu.title}</h2>
-                                    <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2 text-gray-600 dark:text-gray-300" aria-label="Close menu">
-                                        <XIcon className="h-6 w-6" />
-                                    </button>
-                                </div>
-                                
-                                <div className="flex-1 overflow-y-auto">
-                                <AnimatePresence initial={false}>
-                                    <motion.div
-                                        key={mobileNavStack.length}
-                                        initial={{ opacity: 0, x: 50 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -50 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="p-4 space-y-2"
-                                    >
-                                        {currentMenu.type === 'links' && (currentMenu.items as NavLinkItem[]).map(item => (
-                                            <NavLink 
-                                                key={item.name}
-                                                to={item.path} 
-                                                onClick={() => handleMobileMenuClick(item)}
-                                                className={({isActive}) => `flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive && !item.megaMenuContent ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                                            >
-                                                <span>{item.name}</span>
-                                                {item.megaMenuContent && <ChevronRightIcon className="h-5 w-5" />}
-                                            </NavLink>
-                                        ))}
-
-                                        {currentMenu.type === 'categories' && (currentMenu.items as MenuCategory[]).map(category => (
+                            <div className="flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
+                                <h2 className="font-bold text-lg text-gray-900 dark:text-white">Menu</h2>
+                                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2 text-gray-600 dark:text-gray-300" aria-label="Close menu">
+                                    <XIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                                {NAV_LINKS.map(item => {
+                                    if(item.megaMenuContent) {
+                                        return (
                                             <button 
-                                                key={category.name}
-                                                onClick={() => handleMobileCategoryClick(category)}
+                                                key={item.name}
+                                                onClick={() => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setIsMegaMenuOpen(true);
+                                                }}
                                                 className="flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                                             >
-                                                <span>{category.name}</span>
+                                                <span>{item.name}</span>
                                                 <ChevronRightIcon className="h-5 w-5" />
                                             </button>
-                                        ))}
+                                        )
+                                    }
+                                    return (
+                                        <NavLink 
+                                            key={item.name}
+                                            to={item.path} 
+                                            className={({isActive}) => `flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                                        >
+                                            <span>{item.name}</span>
+                                        </NavLink>
+                                    )
+                                })}
+                            </div>
 
-                                        {currentMenu.type === 'products' && (currentMenu.items as Product[]).map(product => (
-                                            <NavLink
-                                                key={product.name}
-                                                to={product.path}
-                                                className={({ isActive }) => `block w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                                            >
-                                                <span className="font-semibold">{product.name}</span>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-normal">{product.description}</p>
-                                            </NavLink>
-                                        ))}
-                                    </motion.div>
-                                </AnimatePresence>
-                                </div>
-
-                                <div className="p-4 border-t dark:border-gray-700">
-                                     <Link to="/contact" className="block w-full text-center px-4 py-3 text-lg font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:opacity-90 transition-opacity rounded-md">
-                                        Contact Us
-                                    </Link>
-                                </div>
+                            <div className="p-4 border-t dark:border-gray-700">
+                                 <Link to="/contact" className="block w-full text-center px-4 py-3 text-lg font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:opacity-90 transition-opacity rounded-md">
+                                    Contact Us
+                                </Link>
                             </div>
                         </motion.div>
                     </motion.div>
