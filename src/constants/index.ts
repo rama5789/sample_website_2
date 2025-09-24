@@ -11,22 +11,35 @@ import {
 const PRODUCTS_MENU_CONTENT: MenuCategory[] = [
     {
         name: 'Featured Products',
-        description: 'Get started with one of these featured services',
+        description: 'Get started with one of these featured services or browse all products',
         items: [
-            { name: 'Quantum Query', description: 'Generative AI assistant for productivity and insights', path: '/products/quantum-query' },
+            { name: 'BintyByte Q', description: 'Generative AI assistant for productivity and insights', path: '/products/q' },
+            { name: 'Transform', description: 'Agentic AI to accelerate modernization of .NET, mainframe, and VMWare workloads', path: '/products/transform' },
+            { name: 'Aurora', description: 'Serverless relational database service for PostgreSQL, MySQL, and DSQL', path: '/products/aurora' },
+            { name: 'AI Bedrock', description: 'Managed service for building and scaling generative AI apps with foundation models', path: '/products/bedrock' },
+            { name: 'AI Connect', description: 'AI-native omnichannel cloud contact center', path: '/products/connect' },
+            { name: 'EC2', description: 'Secure and resizable compute capacity for virtually any workload', path: '/products/ec2' },
             { name: 'Nova', description: 'Foundation models delivering frontier intelligence and top price performance', path: '/products/nova' },
-            { name: 'AI Bedrock', description: 'Managed service for building and scaling generative AI apps with foundation models', path: '/products/ai-bedrock' },
-            { name: 'ChronoStream', description: 'Serverless relational database service for PostgreSQL, MySQL, and DSQL', path: '/products/chronostream' },
-            { name: 'Synapse', description: 'The center for all your data, analytics, and AI', path: '/products/synapse' },
-            { name: 'Neutron', description: 'Secure and resizable compute capacity for virtually any workload', path: '/products/neutron' },
+            { name: 'SageMaker', description: 'The center for all your data, analytics, and AI', path: '/products/sagemaker' },
+            { name: 'S3', description: 'Virtually unlimited secure object storage for AI, analytics, and archives', path: '/products/s3' },
         ],
     },
     {
         name: 'Analytics',
         items: [
             { name: 'DataBrew', description: 'Visual data preparation tool', path: '/products/analytics/databrew' },
-            { name: 'Quantum Warehouse', description: 'Cloud data warehouse', path: '/products/analytics/warehouse' },
+            { name: 'BintyByte Warehouse', description: 'Cloud data warehouse', path: '/products/analytics/warehouse' },
             { name: 'QuickSight', description: 'Business intelligence (BI) service', path: '/products/analytics/quicksight' },
+            { name: 'Kinesis', description: 'Real-time data streaming', path: '/products/analytics/kinesis' },
+        ],
+    },
+    {
+        name: 'Application Integration',
+        items: [
+            { name: 'EventBridge', description: 'Serverless event bus for SaaS and custom applications', path: '/products/integration/eventbridge' },
+            { name: 'Step Functions', description: 'Visual workflows for distributed applications', path: '/products/integration/step-functions' },
+            { name: 'SQS', description: 'Fully managed message queuing service', path: '/products/integration/sqs' },
+            { name: 'SNS', description: 'Pub/sub, SMS, email, and mobile push notifications', path: '/products/integration/sns' },
         ],
     },
     {
@@ -35,22 +48,40 @@ const PRODUCTS_MENU_CONTENT: MenuCategory[] = [
             { name: 'AI Bedrock', description: 'Build with foundation models', path: '/products/ai/bedrock' },
             { name: 'Lex', description: 'Conversational AI for chatbots', path: '/products/ai/lex' },
             { name: 'Polly', description: 'Text-to-speech service', path: '/products/ai/polly' },
+            { name: 'Rekognition', description: 'Automate your image and video analysis', path: '/products/ai/rekognition' },
+        ],
+    },
+     {
+        name: 'Business Applications',
+        items: [
+            { name: 'WorkDocs', description: 'Secure content collaboration and file storage', path: '/products/bizapps/workdocs' },
+            { name: 'Chime', description: 'Frustration-free meetings, video calls, and chat', path: '/products/bizapps/chime' },
         ],
     },
     {
         name: 'Compute',
         items: [
-            { name: 'Neutron', description: 'Virtual servers in the cloud', path: '/products/compute/neutron' },
+            { name: 'EC2', description: 'Virtual servers in the cloud', path: '/products/compute/ec2' },
             { name: 'Lambda', description: 'Run code without thinking about servers', path: '/products/compute/lambda' },
             { name: 'Lightsail', description: 'Easy-to-use cloud platform', path: '/products/compute/lightsail' },
+            { name: 'EKS', description: 'The most trusted way to start, run, and scale Kubernetes', path: '/products/compute/eks' },
         ],
     },
     {
         name: 'Databases',
         items: [
-            { name: 'ChronoStream', description: 'Managed relational database service', path: '/products/db/chronostream' },
+            { name: 'Aurora', description: 'Managed relational database service', path: '/products/db/aurora' },
             { name: 'DynamoDB', description: 'NoSQL database service', path: '/products/db/dynamodb' },
             { name: 'ElastiCache', description: 'In-memory caching service', path: '/products/db/elasticache' },
+            { name: 'RDS', description: 'Managed relational database service for popular engines', path: '/products/db/rds' },
+        ],
+    },
+    {
+        name: 'Developer Tools',
+        items: [
+            { name: 'Cloud9', description: 'Cloud-based IDE for writing, running, and debugging code', path: '/products/devtools/cloud9' },
+            { name: 'CodeCommit', description: 'Securely host highly scalable private Git repositories', path: '/products/devtools/codecommit' },
+            { name: 'CodeDeploy', description: 'Automate code deployments to any instance', path: '/products/devtools/codedeploy' },
         ],
     },
 ];

@@ -1,33 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { useTheme } from '../../hooks/useTheme';
 import { NAV_LINKS } from '../../constants';
 import { LogoIcon, MenuIcon, XIcon, ChevronRightIcon, ArrowLeftIcon } from '../icons';
 import { ThemeToggle } from './ThemeToggle';
 import { MegaMenu } from './MegaMenu';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { NavLinkItem, MenuCategory } from '../../types';
+import type { NavLinkItem, MenuCategory, Product } from '../../types';
 
 interface MobileMenuLevel {
     title: string;
-    items: (NavLinkItem | MenuCategory)[];
-    type: 'links' | 'categories';
+    items: (NavLinkItem | MenuCategory | Product)[];
+    type: 'links' | 'categories' | 'products';
 }
 
 export const Header: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
     const [mobileNavStack, setMobileNavStack] = useState<MobileMenuLevel[]>([{ title: 'Menu', items: NAV_LINKS, type: 'links' }]);
     
-    const { resolvedTheme } = useTheme();
     const location = useLocation();
+    const menuRef = useRef<HTMLDivElement>(null);
 
+    // Close menus on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
+        setIsMegaMenuOpen(false);
         setMobileNavStack([{ title: 'Menu', items: NAV_LINKS, type: 'links' }]);
-        setActiveMenu(null);
     }, [location]);
 
+    // Prevent body scroll when mobile menu is open
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden';
@@ -37,27 +38,29 @@ export const Header: React.FC = () => {
         return () => { document.body.style.overflow = ''; };
     }, [isMobileMenuOpen]);
 
-    const handleMouseEnter = (menuName: string) => {
-        setActiveMenu(menuName);
-    };
+    // Handle clicks outside of mega menu to close it
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMegaMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-    const handleMouseLeave = () => {
-        setActiveMenu(null);
-    };
-
-    const navLinkClass = "px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
+    const productsLink = NAV_LINKS.find(link => link.name === 'Products');
+    const navLinkClass = "relative px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
 
     const handleMobileMenuClick = (item: NavLinkItem) => {
         if (item.megaMenuContent) {
             setMobileNavStack(stack => [...stack, { title: item.name, items: item.megaMenuContent!, type: 'categories' }]);
-        } else {
-            // Regular link, NavLink will handle it. Closing menu is handled by useEffect on location change.
         }
     };
     
     const handleMobileCategoryClick = (category: MenuCategory) => {
-        const productLinks = category.items.map(p => ({ name: p.name, path: p.path, description: p.description }));
-        setMobileNavStack(stack => [...stack, { title: category.name, items: productLinks as any, type: 'links' }]);
+        const products: Product[] = category.items.map(p => ({ name: p.name, path: p.path, description: p.description }));
+        setMobileNavStack(stack => [...stack, { title: category.name, items: products, type: 'products' }]);
     };
 
 
@@ -78,18 +81,32 @@ export const Header: React.FC = () => {
                             <span>BintyByte</span>
                         </Link>
                         
-                        <nav className="hidden lg:flex items-center space-x-1">
-                            {NAV_LINKS.map(link => (
-                                <div key={link.name} onMouseEnter={() => link.megaMenuContent && handleMouseEnter(link.name)} onMouseLeave={() => link.megaMenuContent && handleMouseLeave()} className="relative">
+                        <div ref={menuRef} className="hidden lg:flex items-center space-x-1">
+                            {NAV_LINKS.map(link => {
+                                if (link.megaMenuContent) {
+                                    return (
+                                        <div key={link.name} className="relative">
+                                            <button 
+                                                onClick={() => setIsMegaMenuOpen(prev => !prev)}
+                                                className={`${navLinkClass} ${isMegaMenuOpen ? 'bg-gray-100 dark:bg-gray-700/50' : ''}`}
+                                            >
+                                                {link.name}
+                                                <span className={`inline-block ml-1 transition-transform duration-200 ${isMegaMenuOpen ? 'rotate-180' : 'rotate-0'}`}>&#x25BE;</span>
+                                            </button>
+                                        </div>
+                                    )
+                                }
+                                return (
                                     <NavLink 
+                                        key={link.name} 
                                         to={link.path}
                                         className={({ isActive }) => `${navLinkClass} ${isActive ? 'bg-gray-100 dark:bg-gray-700/50' : ''}`}
                                     >
                                         {link.name}
                                     </NavLink>
-                                </div>
-                            ))}
-                        </nav>
+                                )
+                            })}
+                        </div>
 
                         <div className="flex items-center justify-end">
                             <div className="hidden lg:flex items-center gap-4">
@@ -107,23 +124,23 @@ export const Header: React.FC = () => {
                         </div>
                     </div>
                 </div>
+                
+                {/* Desktop Mega Menu */}
+                <AnimatePresence>
+                    {isMegaMenuOpen && (
+                        <MegaMenu
+                            menu={productsLink}
+                            onClose={() => setIsMegaMenuOpen(false)}
+                        />
+                    )}
+                </AnimatePresence>
             </header>
-
-            {/* Desktop Mega Menu */}
-            <AnimatePresence>
-                {activeMenu && (
-                    <MegaMenu
-                        menu={NAV_LINKS.find(link => link.name === activeMenu)}
-                        onMouseLeave={handleMouseLeave}
-                    />
-                )}
-            </AnimatePresence>
 
             {/* Mobile Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
-                        className="fixed inset-0 z-50 lg:hidden"
+                        className="fixed inset-0 z-[60] lg:hidden"
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
@@ -132,7 +149,7 @@ export const Header: React.FC = () => {
                         <motion.div className="absolute inset-0 bg-black/40" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} onClick={() => setIsMobileMenuOpen(false)} />
                         
                         <motion.div
-                            className="fixed top-0 right-0 bottom-0 flex z-50"
+                            className="fixed top-0 right-0 bottom-0 flex z-[70]"
                             variants={mobileMenuVariants}
                             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         >
@@ -160,16 +177,15 @@ export const Header: React.FC = () => {
                                         className="p-4 space-y-2"
                                     >
                                         {currentMenu.type === 'links' && (currentMenu.items as NavLinkItem[]).map(item => (
-                                            <div key={item.name}>
-                                                <NavLink 
-                                                    to={item.path} 
-                                                    onClick={() => handleMobileMenuClick(item)}
-                                                    className={({isActive}) => `flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                                                >
-                                                    <span>{item.name}</span>
-                                                    {item.megaMenuContent && <ChevronRightIcon className="h-5 w-5" />}
-                                                </NavLink>
-                                            </div>
+                                            <NavLink 
+                                                key={item.name}
+                                                to={item.path} 
+                                                onClick={() => handleMobileMenuClick(item)}
+                                                className={({isActive}) => `flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive && !item.megaMenuContent ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                                            >
+                                                <span>{item.name}</span>
+                                                {item.megaMenuContent && <ChevronRightIcon className="h-5 w-5" />}
+                                            </NavLink>
                                         ))}
 
                                         {currentMenu.type === 'categories' && (currentMenu.items as MenuCategory[]).map(category => (
@@ -183,6 +199,16 @@ export const Header: React.FC = () => {
                                             </button>
                                         ))}
 
+                                        {currentMenu.type === 'products' && (currentMenu.items as Product[]).map(product => (
+                                            <NavLink
+                                                key={product.name}
+                                                to={product.path}
+                                                className={({ isActive }) => `block w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                                            >
+                                                <span className="font-semibold">{product.name}</span>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-normal">{product.description}</p>
+                                            </NavLink>
+                                        ))}
                                     </motion.div>
                                 </AnimatePresence>
                                 </div>
