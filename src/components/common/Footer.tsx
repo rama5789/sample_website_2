@@ -9,8 +9,8 @@ export const Footer: React.FC = () => (
             <div className="xl:grid xl:grid-cols-3 xl:gap-8">
                 <div className="space-y-4">
                     <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
-                        <LogoIcon className="h-7 w-7 text-blue-500" />
-                        <span>QuantumLeap</span>
+                        <LogoIcon className="h-7 w-7 text-fuchsia-500" />
+                        <span>BintyByte</span>
                     </Link>
                     <p className="text-gray-500 dark:text-gray-400 text-base">
                         Engineering the future of data and AI.
@@ -38,7 +38,7 @@ export const Footer: React.FC = () => (
                 </div>
             </div>
             <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
-                <p className="text-base text-gray-400 xl:text-center">&copy; {new Date().getFullYear()} QuantumLeap Engineering. All rights reserved.</p>
+                <p className="text-base text-gray-400 xl:text-center">&copy; {new Date().getFullYear()} BintyByte Technologies Private Limited. All rights reserved.</p>
             </div>
         </div>
     </footer>

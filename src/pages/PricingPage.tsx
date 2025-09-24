@@ -15,8 +15,8 @@ export const PricingPage: React.FC = () => (
         </p>
         <div className="mt-12 space-y-8 lg:grid lg:grid-cols-3 lg:gap-x-8 lg:space-y-0">
             {PRICING_TIERS.map(tier => (
-                <div key={tier.name} className={`relative p-8 bg-white dark:bg-gray-800/50 border rounded-2xl shadow-sm flex flex-col ${tier.isFeatured ? 'border-2 border-blue-500' : 'border-gray-200 dark:border-gray-700'}`}>
-                    {tier.isFeatured && <div className="absolute top-0 -translate-y-1/2 px-3 py-1 text-sm font-semibold tracking-wide text-white uppercase bg-blue-500 rounded-full">Most Popular</div>}
+                <div key={tier.name} className={`relative p-8 bg-white dark:bg-gray-800/50 border rounded-2xl shadow-sm flex flex-col ${tier.isFeatured ? 'border-2 border-fuchsia-500' : 'border-gray-200 dark:border-gray-700'}`}>
+                    {tier.isFeatured && <div className="absolute top-0 -translate-y-1/2 px-3 py-1 text-sm font-semibold tracking-wide text-white uppercase bg-fuchsia-500 rounded-full">Most Popular</div>}
                     <div className="flex-1">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{tier.name}</h3>
                         <p className="mt-4 flex items-baseline text-gray-900 dark:text-white">
@@ -32,7 +32,7 @@ export const PricingPage: React.FC = () => (
                             ))}
                         </ul>
                     </div>
-                    <Link to="/contact" className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium ${tier.isFeatured ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}`}>
+                    <Link to="/contact" className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium transition-opacity ${tier.isFeatured ? 'bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white hover:opacity-90' : 'bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}`}>
                         Select Plan
                     </Link>
                 </div>

@@ -61,7 +61,7 @@ export const RESOURCES: Resource[] = [
 ];
 
 export const TEAM: TeamMember[] = [
-    { name: 'Dr. Evelyn Reed', role: 'Founder & CEO', bio: 'With a PhD in Distributed Systems, Evelyn founded QuantumLeap to bridge the gap between cutting-edge research and practical business application.', imageUrl: 'https://picsum.photos/seed/evelyn/400/400' },
+    { name: 'Dr. Evelyn Reed', role: 'Founder & CEO', bio: 'With a PhD in Distributed Systems, Evelyn founded BintyByte to bridge the gap between cutting-edge research and practical business application.', imageUrl: 'https://picsum.photos/seed/evelyn/400/400' },
     { name: 'Ben Carter', role: 'Head of Engineering', bio: 'A cloud-native evangelist, Ben leads our engineering teams with a focus on elegant architecture and operational excellence across all major cloud platforms.', imageUrl: 'https://picsum.photos/seed/ben/400/400' },
     { name: 'Priya Singh', role: 'Head of Data Science', bio: 'Priya is a leader in applied AI, specializing in natural language processing and reinforcement learning to solve complex commercial challenges.', imageUrl: 'https://picsum.photos/seed/priya/400/400' },
 ];

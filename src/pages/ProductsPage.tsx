@@ -20,7 +20,7 @@ export const ProductsPage: React.FC = () => (
                      We architect and deploy scalable, serverless, and containerized data solutions on Amazon Web Services. Our expertise spans from foundational data lakes on S3 to real-time analytics with Kinesis and managed machine learning with SageMaker, ensuring you get the most out of the AWS ecosystem.
                  </p>
                  <div className="mt-6">
-                    <Link to="#" className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">Learn more about our AWS practice <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
+                    <Link to="#" className="text-fuchsia-600 dark:text-fuchsia-400 font-semibold group-hover:underline">Learn more about our AWS practice <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
                  </div>
             </div>
 
@@ -31,7 +31,7 @@ export const ProductsPage: React.FC = () => (
                      Break down data silos without moving data. We implement Starburst Enterprise to create a single point of access to all your data sources—whether in the cloud or on-premise. This federated approach enables fast, interactive analytics across your entire data estate.
                  </p>
                  <div className="mt-6">
-                    <Link to="#" className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">Explore our Lakehouse solutions <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
+                    <Link to="#" className="text-fuchsia-600 dark:text-fuchsia-400 font-semibold group-hover:underline">Explore our Lakehouse solutions <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
                  </div>
             </div>
         </div>

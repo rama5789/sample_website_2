@@ -19,7 +19,7 @@ export const AboutPage: React.FC = () => (
                          <img className="mx-auto h-40 w-40 rounded-full" src={member.imageUrl} alt="" />
                          <div className="space-y-2">
                              <h4 className="text-lg font-medium text-gray-900 dark:text-white">{member.name}</h4>
-                             <p className="text-blue-600 dark:text-blue-400">{member.role}</p>
+                             <p className="text-fuchsia-600 dark:text-fuchsia-400">{member.role}</p>
                              <p className="text-gray-500 dark:text-gray-400">{member.bio}</p>
                          </div>
                      </div>

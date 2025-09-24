@@ -17,7 +17,7 @@ export const SolutionsPage: React.FC = () => (
             <div className="mt-8 grid gap-8 md:grid-cols-3">
                 {SOLUTIONS.filter(s => s.category === 'By Industry').map(solution => (
                      <div key={solution.title} className="p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-500 text-white">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-fuchsia-500 text-white">
                             {solution.title.includes('Finance') ? <BuildingIcon className="h-6 w-6"/> : solution.title.includes('Health') ? <HeartPulseIcon className="h-6 w-6"/> : <ShoppingCartIcon className="h-6 w-6"/>}
                         </div>
                         <h4 className="mt-5 text-lg font-medium text-gray-900 dark:text-white">{solution.title}</h4>
