@@ -7,6 +7,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { SkipLink } from './components/common/SkipLink';
 import { ScrollToTop } from './utils/ScrollToTop';
+import ScrollToTopButton from './components/common/ScrollToTopButton';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -66,6 +67,7 @@ const App: React.FC = () => {
               </ErrorBoundary>
             </main>
             <Footer />
+            <ScrollToTopButton />
           </div>
         </HashRouter>
       </ThemeProvider>
