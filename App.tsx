@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect, createContext, useContext, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, createContext, useContext, useCallback, useMemo, useRef } from 'react';
 import { HashRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
-import type { NavLinkItem, Service, Pillar, Differentiator, PricingTier, Solution, Resource, TeamMember } from './types';
+import { AnimatePresence, motion } from 'framer-motion';
+import type { NavLinkItem, Service, Pillar, Differentiator, PricingTier, Solution, Resource, TeamMember, MenuCategory, Product } from './types';
 
 // THEME MANAGEMENT
 // =================================================================================
@@ -94,13 +95,92 @@ const CodeIcon: React.FC<{ className?: string }> = ({ className }) => ( <svg xml
 const BuildingIcon: React.FC<{ className?: string }> = ({ className }) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="8" x2="8" y1="6" y2="18"/><line x1="16" x2="16" y1="6" y2="18"/><line x1="12" x2="12" y1="6" y2="18"/></svg> );
 const HeartPulseIcon: React.FC<{ className?: string }> = ({ className }) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.7-1 2.1 4.4 3.2-7.4-1.2 2.4H22"/></svg> );
 const ShoppingCartIcon: React.FC<{ className?: string }> = ({ className }) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.16"/></svg> );
+const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className }) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> );
 
 // DATA & CONTENT
 // =================================================================================
 
+const PRODUCTS_MENU_CONTENT: MenuCategory[] = [
+    {
+        name: 'Featured Products',
+        description: 'Get started with one of these featured services or browse all products',
+        items: [
+            { name: 'BintyByte Q', description: 'Generative AI assistant for productivity and insights', path: '/products/q' },
+            { name: 'Transform', description: 'Agentic AI to accelerate modernization of .NET, mainframe, and VMWare workloads', path: '/products/transform' },
+            { name: 'Aurora', description: 'Serverless relational database service for PostgreSQL, MySQL, and DSQL', path: '/products/aurora' },
+            { name: 'AI Bedrock', description: 'Managed service for building and scaling generative AI apps with foundation models', path: '/products/bedrock' },
+            { name: 'AI Connect', description: 'AI-native omnichannel cloud contact center', path: '/products/connect' },
+            { name: 'EC2', description: 'Secure and resizable compute capacity for virtually any workload', path: '/products/ec2' },
+            { name: 'Nova', description: 'Foundation models delivering frontier intelligence and top price performance', path: '/products/nova' },
+            { name: 'SageMaker', description: 'The center for all your data, analytics, and AI', path: '/products/sagemaker' },
+            { name: 'S3', description: 'Virtually unlimited secure object storage for AI, analytics, and archives', path: '/products/s3' },
+        ],
+    },
+    {
+        name: 'Analytics',
+        items: [
+            { name: 'DataBrew', description: 'Visual data preparation tool', path: '/products/analytics/databrew' },
+            { name: 'BintyByte Warehouse', description: 'Cloud data warehouse', path: '/products/analytics/warehouse' },
+            { name: 'QuickSight', description: 'Business intelligence (BI) service', path: '/products/analytics/quicksight' },
+            { name: 'Kinesis', description: 'Real-time data streaming', path: '/products/analytics/kinesis' },
+        ],
+    },
+    {
+        name: 'Application Integration',
+        items: [
+            { name: 'EventBridge', description: 'Serverless event bus for SaaS and custom applications', path: '/products/integration/eventbridge' },
+            { name: 'Step Functions', description: 'Visual workflows for distributed applications', path: '/products/integration/step-functions' },
+            { name: 'SQS', description: 'Fully managed message queuing service', path: '/products/integration/sqs' },
+            { name: 'SNS', description: 'Pub/sub, SMS, email, and mobile push notifications', path: '/products/integration/sns' },
+        ],
+    },
+    {
+        name: 'Artificial Intelligence',
+        items: [
+            { name: 'AI Bedrock', description: 'Build with foundation models', path: '/products/ai/bedrock' },
+            { name: 'Lex', description: 'Conversational AI for chatbots', path: '/products/ai/lex' },
+            { name: 'Polly', description: 'Text-to-speech service', path: '/products/ai/polly' },
+            { name: 'Rekognition', description: 'Automate your image and video analysis', path: '/products/ai/rekognition' },
+        ],
+    },
+     {
+        name: 'Business Applications',
+        items: [
+            { name: 'WorkDocs', description: 'Secure content collaboration and file storage', path: '/products/bizapps/workdocs' },
+            { name: 'Chime', description: 'Frustration-free meetings, video calls, and chat', path: '/products/bizapps/chime' },
+        ],
+    },
+    {
+        name: 'Compute',
+        items: [
+            { name: 'EC2', description: 'Virtual servers in the cloud', path: '/products/compute/ec2' },
+            { name: 'Lambda', description: 'Run code without thinking about servers', path: '/products/compute/lambda' },
+            { name: 'Lightsail', description: 'Easy-to-use cloud platform', path: '/products/compute/lightsail' },
+            { name: 'EKS', description: 'The most trusted way to start, run, and scale Kubernetes', path: '/products/compute/eks' },
+        ],
+    },
+    {
+        name: 'Databases',
+        items: [
+            { name: 'Aurora', description: 'Managed relational database service', path: '/products/db/aurora' },
+            { name: 'DynamoDB', description: 'NoSQL database service', path: '/products/db/dynamodb' },
+            { name: 'ElastiCache', description: 'In-memory caching service', path: '/products/db/elasticache' },
+            { name: 'RDS', description: 'Managed relational database service for popular engines', path: '/products/db/rds' },
+        ],
+    },
+    {
+        name: 'Developer Tools',
+        items: [
+            { name: 'Cloud9', description: 'Cloud-based IDE for writing, running, and debugging code', path: '/products/devtools/cloud9' },
+            { name: 'CodeCommit', description: 'Securely host highly scalable private Git repositories', path: '/products/devtools/codecommit' },
+            { name: 'CodeDeploy', description: 'Automate code deployments to any instance', path: '/products/devtools/codedeploy' },
+        ],
+    },
+];
+
 const NAV_LINKS: NavLinkItem[] = [
   { name: 'Why Us', path: '/why-us' },
-  { name: 'Products', path: '/products' },
+  { name: 'Products', path: '/products', megaMenuContent: PRODUCTS_MENU_CONTENT },
   { name: 'Solutions', path: '/solutions' },
   { name: 'Pricing', path: '/pricing' },
   { name: 'Resources', path: '/resources' },
@@ -151,7 +231,7 @@ const RESOURCES: Resource[] = [
 ];
 
 const TEAM: TeamMember[] = [
-    { name: 'Dr. Evelyn Reed', role: 'Founder & CEO', bio: 'With a PhD in Distributed Systems, Evelyn founded QuantumLeap to bridge the gap between cutting-edge research and practical business application.', imageUrl: 'https://picsum.photos/seed/evelyn/400/400' },
+    { name: 'Dr. Evelyn Reed', role: 'Founder & CEO', bio: 'With a PhD in Distributed Systems, Evelyn founded BintyByte to bridge the gap between cutting-edge research and practical business application.', imageUrl: 'https://picsum.photos/seed/evelyn/400/400' },
     { name: 'Ben Carter', role: 'Head of Engineering', bio: 'A cloud-native evangelist, Ben leads our engineering teams with a focus on elegant architecture and operational excellence across all major cloud platforms.', imageUrl: 'https://picsum.photos/seed/ben/400/400' },
     { name: 'Priya Singh', role: 'Head of Data Science', bio: 'Priya is a leader in applied AI, specializing in natural language processing and reinforcement learning to solve complex commercial challenges.', imageUrl: 'https://picsum.photos/seed/priya/400/400' },
 ];
@@ -177,7 +257,7 @@ const ThemeToggle: React.FC = () => {
                     onClick={() => setTheme(opt.value)}
                     className={`p-1.5 rounded-full transition-colors duration-200 ${
                         theme === opt.value
-                            ? 'bg-white dark:bg-gray-900 text-blue-500'
+                            ? 'bg-white dark:bg-gray-900 text-fuchsia-500'
                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                     aria-label={`Set theme to ${opt.value}`}
@@ -189,71 +269,364 @@ const ThemeToggle: React.FC = () => {
     );
 };
 
-const Header: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const { resolvedTheme } = useTheme();
+interface MegaMenuProps {
+  menu?: NavLinkItem;
+  onClose: () => void;
+}
 
-    const activeLinkStyle = {
-      color: resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6', // blue-400 dark, blue-500 light
-      backgroundImage: `linear-gradient(to top, ${resolvedTheme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.1)'} 100%, transparent 100%)`,
+interface MobileNavLevel {
+    title: string;
+    level: 'categories' | 'products';
+    data: MenuCategory[] | MenuCategory;
+}
+
+const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
+  if (!menu || !menu.megaMenuContent) return null;
+
+  const [activeCategory, setActiveCategory] = useState(menu.megaMenuContent[0]);
+  const [mobileNavStack, setMobileNavStack] = useState<MobileNavLevel[]>([
+    { title: 'Products', level: 'categories', data: menu.megaMenuContent }
+  ]);
+  const [direction, setDirection] = useState(1);
+  const location = useLocation();
+
+  useEffect(() => {
+    setMobileNavStack([{ title: 'Products', level: 'categories', data: menu.megaMenuContent }]);
+  }, [location, menu]);
+
+  const handleMobileCategoryClick = (category: MenuCategory) => {
+    setDirection(1);
+    setMobileNavStack(stack => [...stack, { title: category.name, level: 'products', data: category }]);
+  };
+
+  const handleMobileBack = () => {
+    setDirection(-1);
+    setMobileNavStack(stack => stack.slice(0, -1));
+  };
+  
+  const currentMobileLevel = mobileNavStack[mobileNavStack.length - 1];
+  const motionVariants = {
+    enter: (direction: number) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (direction: number) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-40 bg-white dark:bg-gray-900 lg:fixed lg:top-16 lg:left-0 lg:right-0 lg:bottom-auto lg:h-auto lg:bg-white/80 lg:dark:bg-gray-900/80 lg:backdrop-blur-xl lg:shadow-xl lg:border-t lg:border-gray-200 lg:dark:border-gray-800"
+    >
+      {/* Desktop View */}
+      <div className="hidden lg:block container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-8 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
+            aria-label="Close menu"
+          >
+              <XIcon className="h-6 w-6" />
+          </button>
+          <div className="flex max-h-[calc(100vh-12rem)] min-h-[30rem]">
+              <div className="w-[280px] flex-shrink-0 overflow-y-auto py-8 pr-4 border-r border-gray-200 dark:border-gray-700">
+                  <ul className="space-y-1">
+                      {menu.megaMenuContent.map(category => (
+                          <li key={category.name}>
+                              <button
+                                  onMouseEnter={() => setActiveCategory(category)}
+                                  className={`w-full flex justify-between items-center text-left px-4 py-2.5 rounded-md transition-colors duration-150 text-sm ${
+                                      activeCategory.name === category.name
+                                          ? 'bg-gray-800 dark:bg-gray-700 text-white'
+                                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/50'
+                                  }`}
+                              >
+                                  <span className="font-semibold">{category.name}</span>
+                                  {activeCategory.name === category.name && <ChevronRightIcon className="h-5 w-5" />}
+                              </button>
+                          </li>
+                      ))}
+                  </ul>
+              </div>
+              <div className="flex-grow overflow-y-auto py-8 pl-8">
+                  <AnimatePresence mode="wait">
+                      <motion.div
+                          key={activeCategory.name}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.15 }}
+                      >
+                          {activeCategory.description && (
+                              <div className="pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
+                                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">{activeCategory.name}</h3>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">{activeCategory.description}</p>
+                                  <Link onClick={onClose} to="/products" className="text-sm font-semibold text-fuchsia-600 dark:text-fuchsia-400 hover:underline mt-1 inline-block">Browse all products &rarr;</Link>
+                              </div>
+                          )}
+                          <ul className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                              {activeCategory.items.map(item => (
+                                  <li key={item.name}>
+                                      <Link onClick={onClose} to={item.path} className="group block p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                          <p className="font-semibold text-gray-900 dark:text-white">{item.name}</p>
+                                          <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">{item.description}</p>
+                                      </Link>
+                                  </li>
+                              ))}
+                          </ul>
+                      </motion.div>
+                  </AnimatePresence>
+              </div>
+          </div>
+      </div>
+
+      {/* Mobile View */}
+      <div className="lg:hidden flex flex-col h-full">
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
+            {mobileNavStack.length > 1 ? (
+                <button onClick={handleMobileBack} className="p-2 -ml-2 text-gray-600 dark:text-gray-300">
+                    <ArrowLeftIcon className="h-6 w-6" />
+                </button>
+            ) : <div className="w-10"></div> }
+            <h2 className="font-bold text-lg text-gray-900 dark:text-white text-center">{currentMobileLevel.title}</h2>
+            <button onClick={onClose} className="p-2 -mr-2 text-gray-600 dark:text-gray-300" aria-label="Close menu">
+                <XIcon className="h-6 w-6" />
+            </button>
+        </div>
+        <div className="flex-1 overflow-hidden relative">
+             <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                    key={mobileNavStack.length}
+                    custom={direction}
+                    variants={motionVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.2 }}
+                    className="absolute w-full h-full p-4 space-y-2 overflow-y-auto"
+                >
+                    {currentMobileLevel.level === 'categories' && (
+                        (currentMobileLevel.data as MenuCategory[]).map(category => (
+                            <button 
+                                key={category.name}
+                                onClick={() => handleMobileCategoryClick(category)}
+                                className="flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            >
+                                <span>{category.name}</span>
+                                <ChevronRightIcon className="h-5 w-5" />
+                            </button>
+                        ))
+                    )}
+                    {currentMobileLevel.level === 'products' && (
+                        <>
+                            {(currentMobileLevel.data as MenuCategory).description && (
+                                <div className="p-4 mb-2 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">{(currentMobileLevel.data as MenuCategory).description}</p>
+                                    <Link onClick={onClose} to="/products" className="text-sm font-semibold text-fuchsia-600 dark:text-fuchsia-400 hover:underline mt-1 inline-block">Browse all products &rarr;</Link>
+                                </div>
+                            )}
+                            {(currentMobileLevel.data as MenuCategory).items.map(product => (
+                                <Link
+                                    key={product.name}
+                                    to={product.path}
+                                    onClick={onClose}
+                                    className="block w-full px-4 py-3 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                                >
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">{product.name}</span>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-normal">{product.description}</p>
+                                </Link>
+                            ))}
+                        </>
+                    )}
+                </motion.div>
+             </AnimatePresence>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
+const Header: React.FC = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+    
+    const location = useLocation();
+    const megaMenuButtonRef = useRef<HTMLButtonElement>(null);
+    const megaMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+        setIsMegaMenuOpen(false);
+    }, [location]);
+
+    useEffect(() => {
+        if (isMobileMenuOpen || isMegaMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isMobileMenuOpen, isMegaMenuOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                isMegaMenuOpen &&
+                megaMenuRef.current && 
+                !megaMenuRef.current.contains(event.target as Node) &&
+                megaMenuButtonRef.current &&
+                !megaMenuButtonRef.current.contains(event.target as Node)
+            ) {
+                setIsMegaMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isMegaMenuOpen]);
+
+    const productsLink = NAV_LINKS.find(link => link.name === 'Products');
+    const navLinkClass = "relative px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
+
+    const mobileMenuVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+    };
+    
+    const mobilePanelVariants = {
+        hidden: { x: '100%' },
+        visible: { x: 0 },
     };
 
-    const navLinkClass = "px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
-
     return (
-        <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
-                        <LogoIcon className="h-7 w-7 text-blue-500" />
-                        <span>QuantumLeap</span>
-                    </Link>
-                    <nav className="hidden md:flex items-center space-x-4">
-                        {NAV_LINKS.map(link => (
-                            <NavLink 
-                                key={link.name} 
-                                to={link.path}
-                                className={({ isActive }) => `${navLinkClass} ${isActive ? 'active-link' : ''}`}
-                                style={({ isActive }) => isActive ? activeLinkStyle : {}}
-                            >
-                                {link.name}
-                            </NavLink>
-                        ))}
-                    </nav>
-                    <div className="hidden md:flex items-center gap-4">
-                        <ThemeToggle />
-                        <Link to="/contact" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200 shadow-sm">
-                            Contact Us
+        <>
+            <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <Link to="/" className="flex-shrink-0 flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
+                            <LogoIcon className="h-7 w-7 text-fuchsia-500" />
+                            <span>BintyByte</span>
                         </Link>
-                    </div>
-                    <div className="md:hidden flex items-center">
-                        <ThemeToggle />
-                        <button onClick={() => setIsOpen(!isOpen)} className="ml-2 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                            {isOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
-                        </button>
+                        
+                        <div className="hidden lg:flex items-center space-x-1">
+                            {NAV_LINKS.map(link => {
+                                if (link.megaMenuContent) {
+                                    return (
+                                        <div key={link.name} className="relative">
+                                            <button 
+                                                ref={megaMenuButtonRef}
+                                                onClick={() => setIsMegaMenuOpen(prev => !prev)}
+                                                className={`${navLinkClass} ${isMegaMenuOpen ? 'bg-gray-100 dark:bg-gray-700/50' : ''}`}
+                                            >
+                                                {link.name}
+                                                <span className={`inline-block ml-1 transition-transform duration-200 ${isMegaMenuOpen ? 'rotate-180' : 'rotate-0'}`}>&#x25BE;</span>
+                                            </button>
+                                        </div>
+                                    )
+                                }
+                                return (
+                                    <NavLink 
+                                        key={link.name} 
+                                        to={link.path}
+                                        className={({ isActive }) => `${navLinkClass} ${isActive ? 'bg-gray-100 dark:bg-gray-700/50' : ''}`}
+                                    >
+                                        {link.name}
+                                    </NavLink>
+                                )
+                            })}
+                        </div>
+
+                        <div className="flex items-center justify-end">
+                            <div className="hidden lg:flex items-center gap-4">
+                                <ThemeToggle />
+                                <Link to="/contact" className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:from-fuchsia-700 hover:to-blue-700 transition-all duration-200 rounded-md shadow-sm">
+                                    Contact Us
+                                </Link>
+                            </div>
+                            <div className="lg:hidden flex items-center">
+                                <ThemeToggle />
+                                <button onClick={() => setIsMobileMenuOpen(true)} className="ml-2 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-fuchsia-500" aria-label="Open main menu">
+                                    <MenuIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </header>
+
+            <div ref={megaMenuRef}>
+                <AnimatePresence>
+                    {isMegaMenuOpen && (
+                        <MegaMenu
+                            menu={productsLink}
+                            onClose={() => setIsMegaMenuOpen(false)}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
-            {isOpen && (
-                <div className="md:hidden">
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        {NAV_LINKS.map(link => (
-                            <NavLink 
-                                key={link.name} 
-                                to={link.path}
-                                onClick={() => setIsOpen(false)}
-                                className={({ isActive }) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-blue-50 dark:bg-gray-800 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                            >
-                                {link.name}
-                            </NavLink>
-                        ))}
-                        <Link to="/contact" onClick={() => setIsOpen(false)} className="block w-full text-left mt-2 px-4 py-2 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                            Contact Us
-                        </Link>
-                    </div>
-                </div>
-            )}
-        </header>
+
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        className="fixed inset-0 z-[60] lg:hidden"
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                    >
+                        <motion.div 
+                            className="absolute inset-0 bg-black/40" 
+                            variants={mobileMenuVariants} 
+                            onClick={() => setIsMobileMenuOpen(false)} 
+                        />
+                        <motion.div
+                            className="fixed top-0 right-0 bottom-0 w-screen max-w-md bg-white dark:bg-gray-900 shadow-xl flex flex-col"
+                            variants={mobilePanelVariants}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        >
+                            <div className="flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
+                                <h2 className="font-bold text-lg text-gray-900 dark:text-white">Menu</h2>
+                                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2 text-gray-600 dark:text-gray-300" aria-label="Close menu">
+                                    <XIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                                {NAV_LINKS.map(item => {
+                                    if(item.megaMenuContent) {
+                                        return (
+                                            <button 
+                                                key={item.name}
+                                                onClick={() => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setIsMegaMenuOpen(true);
+                                                }}
+                                                className="flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                            >
+                                                <span>{item.name}</span>
+                                                <ChevronRightIcon className="h-5 w-5" />
+                                            </button>
+                                        )
+                                    }
+                                    return (
+                                        <NavLink 
+                                            key={item.name}
+                                            to={item.path} 
+                                            className={({isActive}) => `flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md ${isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                                        >
+                                            <span>{item.name}</span>
+                                        </NavLink>
+                                    )
+                                })}
+                            </div>
+                            <div className="p-4 border-t dark:border-gray-700">
+                                 <Link to="/contact" className="block w-full text-center px-4 py-3 text-lg font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:opacity-90 transition-opacity rounded-md">
+                                    Contact Us
+                                </Link>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 
@@ -263,8 +636,8 @@ const Footer: React.FC = () => (
             <div className="xl:grid xl:grid-cols-3 xl:gap-8">
                 <div className="space-y-4">
                     <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
-                        <LogoIcon className="h-7 w-7 text-blue-500" />
-                        <span>QuantumLeap</span>
+                        <LogoIcon className="h-7 w-7 text-fuchsia-500" />
+                        <span>BintyByte</span>
                     </Link>
                     <p className="text-gray-500 dark:text-gray-400 text-base">
                         Engineering the future of data and AI.
@@ -292,7 +665,7 @@ const Footer: React.FC = () => (
                 </div>
             </div>
             <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
-                <p className="text-base text-gray-400 xl:text-center">&copy; {new Date().getFullYear()} QuantumLeap Engineering. All rights reserved.</p>
+                <p className="text-base text-gray-400 xl:text-center">&copy; {new Date().getFullYear()} BintyByte Technologies Private Limited. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -308,7 +681,7 @@ const Section: React.FC<{ children: React.ReactNode, className?: string, id?: st
 
 const SectionTitle: React.FC<{ subtitle: string, children: React.ReactNode }> = ({ subtitle, children }) => (
     <div className="max-w-3xl mx-auto text-center">
-        <h2 className="text-base font-semibold text-blue-600 dark:text-blue-400 tracking-wide uppercase">{subtitle}</h2>
+        <h2 className="text-base font-semibold text-fuchsia-600 dark:text-fuchsia-400 tracking-wide uppercase">{subtitle}</h2>
         <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
             {children}
         </p>
@@ -316,8 +689,8 @@ const SectionTitle: React.FC<{ subtitle: string, children: React.ReactNode }> = 
 );
 
 const ServiceCard: React.FC<{ service: Service }> = ({ service }) => (
-    <div className="group p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all duration-300">
-        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-500 text-white group-hover:bg-gradient-to-br from-blue-500 to-indigo-600 transition-colors duration-300">
+    <div className="group p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-fuchsia-500/50 dark:hover:border-fuchsia-500/50 transition-all duration-300">
+        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-fuchsia-500 text-white group-hover:bg-gradient-to-br from-fuchsia-600 to-blue-600 transition-colors duration-300">
             <service.icon className="h-6 w-6" />
         </div>
         <h3 className="mt-5 text-lg font-medium text-gray-900 dark:text-white">{service.title}</h3>
@@ -331,12 +704,12 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => (
 const HomePage: React.FC = () => (
     <>
         <div className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-900/20"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-900/30"></div>
             <Section className="relative pt-24 sm:pt-32">
                 <div className="text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+                    <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
                         <span className="block">Intelligent Data Solutions,</span>
-                        <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600">
+                        <span className="block bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 via-purple-500 to-blue-500">
                             Engineered for Impact
                         </span>
                     </h1>
@@ -344,10 +717,10 @@ const HomePage: React.FC = () => (
                         We build scalable data platforms, deploy cutting-edge AI, and deliver robust cloud infrastructure to accelerate your business outcomes.
                     </p>
                     <div className="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
-                        <Link to="/contact" className="px-8 py-3 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 sm:px-10">
+                        <Link to="/contact" className="px-8 py-3 text-base font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 border border-transparent rounded-md shadow-sm hover:opacity-90 transition-opacity sm:px-10">
                             Get Started
                         </Link>
-                        <Link to="/why-us" className="px-8 py-3 ml-0 mt-3 sm:mt-0 sm:ml-3 text-base font-medium text-blue-700 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 dark:text-blue-300 dark:bg-blue-900/50 dark:hover:bg-blue-900">
+                        <Link to="/why-us" className="px-8 py-3 ml-0 mt-3 sm:mt-0 sm:ml-3 text-base font-medium text-fuchsia-700 bg-fuchsia-100 border border-transparent rounded-md hover:bg-fuchsia-200 dark:text-fuchsia-300 dark:bg-fuchsia-900/50 dark:hover:bg-fuchsia-900">
                             Learn More
                         </Link>
                     </div>
@@ -362,7 +735,7 @@ const HomePage: React.FC = () => (
             <div className="mt-12 grid gap-8 md:grid-cols-3">
                 {CORE_PILLARS.map(pillar => (
                     <div key={pillar.title} className="text-center">
-                        <div className="flex items-center justify-center mx-auto h-12 w-12 rounded-md bg-blue-500 text-white">
+                        <div className="flex items-center justify-center mx-auto h-12 w-12 rounded-md bg-fuchsia-500 text-white">
                            <pillar.icon className="h-6 w-6"/>
                         </div>
                         <h3 className="mt-5 text-lg font-medium text-gray-900 dark:text-white">{pillar.title}</h3>
@@ -382,15 +755,15 @@ const HomePage: React.FC = () => (
         </Section>
 
         <Section id="cta">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl">
+            <div className="bg-gradient-to-r from-fuchsia-600 via-purple-700 to-blue-700 rounded-2xl shadow-xl">
                 <div className="max-w-4xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
                         Ready to unlock your data's potential?
                     </h2>
-                    <p className="mt-4 text-lg leading-6 text-blue-100">
-                        Let's discuss how QuantumLeap can help you achieve your goals.
+                    <p className="mt-4 text-lg leading-6 text-fuchsia-100">
+                        Let's discuss how BintyByte can help you achieve your goals.
                     </p>
-                    <Link to="/contact" className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 sm:w-auto">
+                    <Link to="/contact" className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-fuchsia-600 bg-white hover:bg-fuchsia-50 sm:w-auto">
                         Schedule a Consultation
                     </Link>
                 </div>
@@ -401,7 +774,7 @@ const HomePage: React.FC = () => (
 
 const WhyUsPage: React.FC = () => (
     <Section>
-        <SectionTitle subtitle="Why QuantumLeap">
+        <SectionTitle subtitle="Why BintyByte">
             Our Differentiators
         </SectionTitle>
         <p className="mt-4 max-w-2xl mx-auto text-center text-xl text-gray-500 dark:text-gray-400">
@@ -411,7 +784,7 @@ const WhyUsPage: React.FC = () => (
             {DIFFERENTIATORS.map(item => (
                 <div key={item.title} className="relative">
                     <dt>
-                        <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                        <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-fuchsia-500 text-white">
                             <item.icon className="h-6 w-6" />
                         </div>
                         <p className="ml-16 text-lg leading-6 font-medium text-gray-900 dark:text-white">{item.title}</p>
@@ -435,25 +808,23 @@ const ProductsPage: React.FC = () => (
         </p>
         
         <div className="mt-16 grid gap-8 md:grid-cols-2">
-            {/* AWS Product Card */}
             <div className="group relative p-8 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Cloud Solutions on AWS</h3>
                  <p className="mt-2 text-gray-500 dark:text-gray-400">
                      We architect and deploy scalable, serverless, and containerized data solutions on Amazon Web Services. Our expertise spans from foundational data lakes on S3 to real-time analytics with Kinesis and managed machine learning with SageMaker, ensuring you get the most out of the AWS ecosystem.
                  </p>
                  <div className="mt-6">
-                    <Link to="#" className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">Learn more about our AWS practice <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
+                    <Link to="/products" className="text-fuchsia-600 dark:text-fuchsia-400 font-semibold group-hover:underline">Learn more about our AWS practice <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
                  </div>
             </div>
 
-            {/* Starburst Product Card */}
             <div className="group relative p-8 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Federated Lakehouse with Starburst</h3>
                  <p className="mt-2 text-gray-500 dark:text-gray-400">
                      Break down data silos without moving data. We implement Starburst Enterprise to create a single point of access to all your data sources—whether in the cloud or on-premise. This federated approach enables fast, interactive analytics across your entire data estate.
                  </p>
                  <div className="mt-6">
-                    <Link to="#" className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">Explore our Lakehouse solutions <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
+                    <Link to="/products" className="text-fuchsia-600 dark:text-fuchsia-400 font-semibold group-hover:underline">Explore our Lakehouse solutions <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">&rarr;</span></Link>
                  </div>
             </div>
         </div>
@@ -474,7 +845,7 @@ const SolutionsPage: React.FC = () => (
             <div className="mt-8 grid gap-8 md:grid-cols-3">
                 {SOLUTIONS.filter(s => s.category === 'By Industry').map(solution => (
                      <div key={solution.title} className="p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-500 text-white">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-fuchsia-500 text-white">
                             {solution.title.includes('Finance') ? <BuildingIcon className="h-6 w-6"/> : solution.title.includes('Health') ? <HeartPulseIcon className="h-6 w-6"/> : <ShoppingCartIcon className="h-6 w-6"/>}
                         </div>
                         <h4 className="mt-5 text-lg font-medium text-gray-900 dark:text-white">{solution.title}</h4>
@@ -507,8 +878,8 @@ const PricingPage: React.FC = () => (
         </p>
         <div className="mt-12 space-y-8 lg:grid lg:grid-cols-3 lg:gap-x-8 lg:space-y-0">
             {PRICING_TIERS.map(tier => (
-                <div key={tier.name} className={`relative p-8 bg-white dark:bg-gray-800/50 border rounded-2xl shadow-sm flex flex-col ${tier.isFeatured ? 'border-2 border-blue-500' : 'border-gray-200 dark:border-gray-700'}`}>
-                    {tier.isFeatured && <div className="absolute top-0 -translate-y-1/2 px-3 py-1 text-sm font-semibold tracking-wide text-white uppercase bg-blue-500 rounded-full">Most Popular</div>}
+                <div key={tier.name} className={`relative p-8 bg-white dark:bg-gray-800/50 border rounded-2xl shadow-sm flex flex-col ${tier.isFeatured ? 'border-2 border-fuchsia-500' : 'border-gray-200 dark:border-gray-700'}`}>
+                    {tier.isFeatured && <div className="absolute top-0 -translate-y-1/2 px-3 py-1 text-sm font-semibold tracking-wide text-white uppercase bg-fuchsia-500 rounded-full">Most Popular</div>}
                     <div className="flex-1">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{tier.name}</h3>
                         <p className="mt-4 flex items-baseline text-gray-900 dark:text-white">
@@ -524,7 +895,7 @@ const PricingPage: React.FC = () => (
                             ))}
                         </ul>
                     </div>
-                    <Link to="/contact" className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium ${tier.isFeatured ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}`}>
+                    <Link to="/contact" className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium transition-opacity ${tier.isFeatured ? 'bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white hover:opacity-90' : 'bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}`}>
                         Select Plan
                     </Link>
                 </div>
@@ -543,7 +914,7 @@ const ResourcesPage: React.FC = () => (
                 <div key={resource.title} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
                     <div className="flex-1 bg-white dark:bg-gray-800 p-6 flex flex-col justify-between">
                         <div className="flex-1">
-                             <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{resource.type}</p>
+                             <p className="text-sm font-medium text-fuchsia-600 dark:text-fuchsia-400">{resource.type}</p>
                              <Link to={resource.link} className="block mt-2">
                                 <p className="text-xl font-semibold text-gray-900 dark:text-white">{resource.title}</p>
                                 <p className="mt-3 text-base text-gray-500 dark:text-gray-400">{resource.description}</p>
@@ -572,7 +943,7 @@ const AboutPage: React.FC = () => (
                          <img className="mx-auto h-40 w-40 rounded-full" src={member.imageUrl} alt="" />
                          <div className="space-y-2">
                              <h4 className="text-lg font-medium text-gray-900 dark:text-white">{member.name}</h4>
-                             <p className="text-blue-600 dark:text-blue-400">{member.role}</p>
+                             <p className="text-fuchsia-600 dark:text-fuchsia-400">{member.role}</p>
                              <p className="text-gray-500 dark:text-gray-400">{member.bio}</p>
                          </div>
                      </div>
@@ -591,22 +962,22 @@ const ContactPage: React.FC = () => (
             <form action="#" method="POST" className="grid grid-cols-1 gap-y-6">
                 <div>
                     <label htmlFor="full-name" className="sr-only">Full name</label>
-                    <input type="text" name="full-name" id="full-name" autoComplete="name" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" placeholder="Full name" />
+                    <input type="text" name="full-name" id="full-name" autoComplete="name" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-fuchsia-500 focus:border-fuchsia-500 border-gray-300 rounded-md" placeholder="Full name" />
                 </div>
                 <div>
                     <label htmlFor="email" className="sr-only">Email</label>
-                    <input id="email" name="email" type="email" autoComplete="email" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" placeholder="Email" />
+                    <input id="email" name="email" type="email" autoComplete="email" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-fuchsia-500 focus:border-fuchsia-500 border-gray-300 rounded-md" placeholder="Email" />
                 </div>
                  <div>
                     <label htmlFor="company" className="sr-only">Company</label>
-                    <input type="text" name="company" id="company" autoComplete="organization" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" placeholder="Company" />
+                    <input type="text" name="company" id="company" autoComplete="organization" className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-fuchsia-500 focus:border-fuchsia-500 border-gray-300 rounded-md" placeholder="Company" />
                 </div>
                 <div>
                     <label htmlFor="message" className="sr-only">Message</label>
-                    <textarea id="message" name="message" rows={4} className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" placeholder="Message"></textarea>
+                    <textarea id="message" name="message" rows={4} className="block w-full shadow-sm py-3 px-4 placeholder-gray-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:ring-fuchsia-500 focus:border-fuchsia-500 border-gray-300 rounded-md" placeholder="Message"></textarea>
                 </div>
                 <div>
-                    <button type="submit" className="w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <button type="submit" className="w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500">
                         Submit
                     </button>
                 </div>
@@ -638,6 +1009,8 @@ const App: React.FC = () => {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/why-us" element={<WhyUsPage />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/:slug" element={<ProductsPage />} />
+                    <Route path="/products/:slug/:item" element={<ProductsPage />} />
                     <Route path="/solutions" element={<SolutionsPage />} />
                     <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/resources" element={<ResourcesPage />} />

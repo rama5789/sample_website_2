@@ -25,6 +25,8 @@ const App: React.FC = () => {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/why-us" element={<WhyUsPage />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/:slug" element={<ProductsPage />} />
+                    <Route path="/products/:slug/:item" element={<ProductsPage />} />
                     <Route path="/solutions" element={<SolutionsPage />} />
                     <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/resources" element={<ResourcesPage />} />

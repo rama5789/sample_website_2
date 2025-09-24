@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import type { NavLinkItem, MenuCategory } from '../../types';
+import type { NavLinkItem, MenuCategory, Product } from '../../types';
 import { ChevronRightIcon, XIcon, ArrowLeftIcon } from '../icons';
 
 interface MegaMenuProps {
@@ -18,26 +18,24 @@ interface MobileNavLevel {
 export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
   if (!menu || !menu.megaMenuContent) return null;
 
-  // --- Desktop State ---
   const [activeCategory, setActiveCategory] = useState(menu.megaMenuContent[0]);
-
-  // --- Mobile State ---
   const [mobileNavStack, setMobileNavStack] = useState<MobileNavLevel[]>([
     { title: 'Products', level: 'categories', data: menu.megaMenuContent }
   ]);
-
+  const [direction, setDirection] = useState(1);
   const location = useLocation();
+
   useEffect(() => {
-    // Reset mobile stack on route change
     setMobileNavStack([{ title: 'Products', level: 'categories', data: menu.megaMenuContent }]);
   }, [location, menu]);
-  
 
   const handleMobileCategoryClick = (category: MenuCategory) => {
+    setDirection(1);
     setMobileNavStack(stack => [...stack, { title: category.name, level: 'products', data: category }]);
   };
 
   const handleMobileBack = () => {
+    setDirection(-1);
     setMobileNavStack(stack => stack.slice(0, -1));
   };
   
@@ -47,8 +45,6 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
     center: { x: 0, opacity: 1 },
     exit: (direction: number) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
   };
-  const [direction, setDirection] = useState(1);
-
 
   return (
     <motion.div
@@ -56,7 +52,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-40 bg-white dark:bg-gray-900 lg:top-16 lg:bottom-auto lg:h-auto lg:bg-white/80 lg:dark:bg-gray-900/80 lg:backdrop-blur-lg lg:shadow-lg lg:border-t lg:border-gray-200 lg:dark:border-gray-800"
+      className="fixed inset-0 z-40 bg-white dark:bg-gray-900 lg:fixed lg:top-16 lg:left-0 lg:right-0 lg:bottom-auto lg:h-auto lg:bg-white/80 lg:dark:bg-gray-900/80 lg:backdrop-blur-xl lg:shadow-xl lg:border-t lg:border-gray-200 lg:dark:border-gray-800"
     >
       {/* Desktop View */}
       <div className="hidden lg:block container mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -88,11 +84,12 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
                   </ul>
               </div>
               <div className="flex-grow overflow-y-auto py-8 pl-8">
-                  {activeCategory && (
+                  <AnimatePresence mode="wait">
                       <motion.div
                           key={activeCategory.name}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.15 }}
                       >
                           {activeCategory.description && (
@@ -102,7 +99,6 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
                                   <Link onClick={onClose} to="/products" className="text-sm font-semibold text-fuchsia-600 dark:text-fuchsia-400 hover:underline mt-1 inline-block">Browse all products &rarr;</Link>
                               </div>
                           )}
-                          
                           <ul className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                               {activeCategory.items.map(item => (
                                   <li key={item.name}>
@@ -114,7 +110,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
                               ))}
                           </ul>
                       </motion.div>
-                  )}
+                  </AnimatePresence>
               </div>
           </div>
       </div>
@@ -123,7 +119,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
       <div className="lg:hidden flex flex-col h-full">
         <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
             {mobileNavStack.length > 1 ? (
-                <button onClick={() => { setDirection(-1); handleMobileBack(); }} className="p-2 -ml-2 text-gray-600 dark:text-gray-300">
+                <button onClick={handleMobileBack} className="p-2 -ml-2 text-gray-600 dark:text-gray-300">
                     <ArrowLeftIcon className="h-6 w-6" />
                 </button>
             ) : <div className="w-10"></div> }
@@ -132,7 +128,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
                 <XIcon className="h-6 w-6" />
             </button>
         </div>
-        <div className="flex-1 overflow-y-auto relative">
+        <div className="flex-1 overflow-hidden relative">
              <AnimatePresence initial={false} custom={direction}>
                 <motion.div
                     key={mobileNavStack.length}
@@ -148,7 +144,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ menu, onClose }) => {
                         (currentMobileLevel.data as MenuCategory[]).map(category => (
                             <button 
                                 key={category.name}
-                                onClick={() => { setDirection(1); handleMobileCategoryClick(category); }}
+                                onClick={() => handleMobileCategoryClick(category)}
                                 className="flex justify-between items-center w-full px-4 py-3 text-left text-lg font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                             >
                                 <span>{category.name}</span>

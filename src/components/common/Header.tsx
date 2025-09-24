@@ -5,7 +5,6 @@ import { LogoIcon, MenuIcon, XIcon, ChevronRightIcon } from '../icons';
 import { ThemeToggle } from './ThemeToggle';
 import { MegaMenu } from './MegaMenu';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { NavLinkItem } from '../../types';
 
 export const Header: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -71,7 +70,7 @@ export const Header: React.FC = () => {
                             <span>BintyByte</span>
                         </Link>
                         
-                        <div className="hidden lg:flex items-center space-x-1">
+                        <nav className="hidden lg:flex items-center space-x-1">
                             {NAV_LINKS.map(link => {
                                 if (link.megaMenuContent) {
                                     return (
@@ -97,7 +96,7 @@ export const Header: React.FC = () => {
                                     </NavLink>
                                 )
                             })}
-                        </div>
+                        </nav>
 
                         <div className="flex items-center justify-end">
                             <div className="hidden lg:flex items-center gap-4">
@@ -117,8 +116,7 @@ export const Header: React.FC = () => {
                 </div>
             </header>
 
-            {/* Unified Mega Menu for Desktop and Mobile */}
-             <div ref={megaMenuRef}>
+            <div ref={megaMenuRef}>
                 <AnimatePresence>
                     {isMegaMenuOpen && (
                         <MegaMenu
@@ -129,7 +127,6 @@ export const Header: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Mobile Slide-out Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
@@ -143,7 +140,6 @@ export const Header: React.FC = () => {
                             variants={mobileMenuVariants} 
                             onClick={() => setIsMobileMenuOpen(false)} 
                         />
-                        
                         <motion.div
                             className="fixed top-0 right-0 bottom-0 w-screen max-w-md bg-white dark:bg-gray-900 shadow-xl flex flex-col"
                             variants={mobilePanelVariants}
@@ -155,8 +151,7 @@ export const Header: React.FC = () => {
                                     <XIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            
-                            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                                 {NAV_LINKS.map(item => {
                                     if(item.megaMenuContent) {
                                         return (
@@ -183,8 +178,7 @@ export const Header: React.FC = () => {
                                         </NavLink>
                                     )
                                 })}
-                            </div>
-
+                            </nav>
                             <div className="p-4 border-t dark:border-gray-700">
                                  <Link to="/contact" className="block w-full text-center px-4 py-3 text-lg font-medium text-white bg-gradient-to-r from-fuchsia-600 to-blue-600 hover:opacity-90 transition-opacity rounded-md">
                                     Contact Us
