@@ -1,8 +1,21 @@
 import type React from 'react';
 
+export interface Product {
+  name: string;
+  description: string;
+  path: string;
+}
+
+export interface MenuCategory {
+  name: string;
+  description?: string;
+  items: Product[];
+}
+
 export interface NavLinkItem {
   name: string;
   path: string;
+  megaMenuContent?: MenuCategory[];
 }
 
 export interface Service {

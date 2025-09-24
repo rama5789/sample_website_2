@@ -1,4 +1,4 @@
-import type { NavLinkItem, Service, Pillar, Differentiator, PricingTier, Solution, Resource, TeamMember } from '../types';
+import type { NavLinkItem, Service, Pillar, Differentiator, PricingTier, Solution, Resource, TeamMember, MenuCategory } from '../types';
 import {
     LayersIcon,
     BrainCircuitIcon,
@@ -8,9 +8,57 @@ import {
     CheckCircleIcon,
 } from '../components/icons';
 
+const PRODUCTS_MENU_CONTENT: MenuCategory[] = [
+    {
+        name: 'Featured Products',
+        description: 'Get started with one of these featured services',
+        items: [
+            { name: 'Quantum Query', description: 'Generative AI assistant for productivity and insights', path: '/products/quantum-query' },
+            { name: 'Nova', description: 'Foundation models delivering frontier intelligence and top price performance', path: '/products/nova' },
+            { name: 'AI Bedrock', description: 'Managed service for building and scaling generative AI apps with foundation models', path: '/products/ai-bedrock' },
+            { name: 'ChronoStream', description: 'Serverless relational database service for PostgreSQL, MySQL, and DSQL', path: '/products/chronostream' },
+            { name: 'Synapse', description: 'The center for all your data, analytics, and AI', path: '/products/synapse' },
+            { name: 'Neutron', description: 'Secure and resizable compute capacity for virtually any workload', path: '/products/neutron' },
+        ],
+    },
+    {
+        name: 'Analytics',
+        items: [
+            { name: 'DataBrew', description: 'Visual data preparation tool', path: '/products/analytics/databrew' },
+            { name: 'Quantum Warehouse', description: 'Cloud data warehouse', path: '/products/analytics/warehouse' },
+            { name: 'QuickSight', description: 'Business intelligence (BI) service', path: '/products/analytics/quicksight' },
+        ],
+    },
+    {
+        name: 'Artificial Intelligence',
+        items: [
+            { name: 'AI Bedrock', description: 'Build with foundation models', path: '/products/ai/bedrock' },
+            { name: 'Lex', description: 'Conversational AI for chatbots', path: '/products/ai/lex' },
+            { name: 'Polly', description: 'Text-to-speech service', path: '/products/ai/polly' },
+        ],
+    },
+    {
+        name: 'Compute',
+        items: [
+            { name: 'Neutron', description: 'Virtual servers in the cloud', path: '/products/compute/neutron' },
+            { name: 'Lambda', description: 'Run code without thinking about servers', path: '/products/compute/lambda' },
+            { name: 'Lightsail', description: 'Easy-to-use cloud platform', path: '/products/compute/lightsail' },
+        ],
+    },
+    {
+        name: 'Databases',
+        items: [
+            { name: 'ChronoStream', description: 'Managed relational database service', path: '/products/db/chronostream' },
+            { name: 'DynamoDB', description: 'NoSQL database service', path: '/products/db/dynamodb' },
+            { name: 'ElastiCache', description: 'In-memory caching service', path: '/products/db/elasticache' },
+        ],
+    },
+];
+
+
 export const NAV_LINKS: NavLinkItem[] = [
   { name: 'Why Us', path: '/why-us' },
-  { name: 'Products', path: '/products' },
+  { name: 'Products', path: '/products', megaMenuContent: PRODUCTS_MENU_CONTENT },
   { name: 'Solutions', path: '/solutions' },
   { name: 'Pricing', path: '/pricing' },
   { name: 'Resources', path: '/resources' },
